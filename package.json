@@ -1,0 +1,16 @@
+{
+  "name": "ff-ban-check",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "Bunnysh17",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "axios": "^1.7.9",
+    "express": "^4.21.2"
+  }
+}
