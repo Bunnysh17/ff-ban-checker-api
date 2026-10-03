@@ -24,12 +24,12 @@ async function getBanInfo(req, res) {
         success: false,
         uid: cleanUid,
         status: "NOT_FOUND",
-        error: "ID NOT FOUND (Player does not exist on Garena servers)",
+        error: "ID NOT FOUND - Player does not exist on Garena servers",
         developer: "Bunnysh17"
       });
     }
 
-    // 2. Fetch Real Player Details (Exact Level, Likes, Nickname, Guild)
+    // 2. Fetch Real Player Details (Exact Level, Likes, Nickname, Guild, Dates)
     const player = await fetchPlayerData(cleanUid, region);
 
     res.json({
@@ -44,7 +44,9 @@ async function getBanInfo(req, res) {
       is_banned: ban.is_banned,
       ban_status: ban.ban_status,
       ban_period: ban.ban_period,
-      period_desc: ban.period_desc,
+      banned_timeline: ban.banned_timeline,
+      last_active_at: player.last_login_at,
+      account_created_at: player.account_created_at,
       message: ban.message,
       developer: "Bunnysh17"
     });

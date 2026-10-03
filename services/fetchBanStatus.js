@@ -1,12 +1,12 @@
 const axios = require('axios');
 
-const PERIOD_MAP = {
-  1: { period: '1 Week', desc: 'Banned in this week', message: 'We have confirmed that this account has used hack(s) and has been banned in this week.' },
-  2: { period: '1 Month', desc: 'Banned in this month', message: 'We have confirmed that this account has used hack(s) and has been banned in this month.' },
-  3: { period: '3 Months', desc: 'Banned in recent 3 months', message: 'We have confirmed that this account has used hack(s) and has been banned in recent 3 months.' },
-  4: { period: '6 Months', desc: 'Banned in recent 6 months', message: 'We have confirmed that this account has used hack(s) and has been banned in recent 6 months.' },
-  5: { period: '1 Year', desc: 'Banned in recent year', message: 'We have confirmed that this account has used hack(s) and has been banned in recent year.' },
-  6: { period: 'Permanent', desc: 'Already permanently banned', message: 'We have confirmed that this account has used hack(s) and has already been banned.' }
+const TIMELINE_MAP = {
+  1: { timeline: 'Banned in this week (Recent)', ban_period: 'Permanent' },
+  2: { timeline: 'Banned in this month (Within 30 Days)', ban_period: 'Permanent' },
+  3: { timeline: 'Banned in recent 3 months', ban_period: 'Permanent' },
+  4: { timeline: 'Banned in recent 6 months', ban_period: 'Permanent' },
+  5: { timeline: 'Banned in recent 1 year', ban_period: 'Permanent' },
+  6: { timeline: 'Banned over 1 year ago', ban_period: 'Permanent' }
 };
 
 /**
@@ -33,25 +33,27 @@ async function fetchBanStatus(uid) {
       const data = resData.data;
       const isBanned = data.is_banned === 1;
       const periodCode = Number(data.period) || 0;
-      const periodInfo = PERIOD_MAP[periodCode] || {
-        period: periodCode > 0 ? `${periodCode} months` : (isBanned ? 'Permanent' : null),
-        desc: isBanned ? 'Account is banned' : 'Account is clean',
-        message: isBanned ? 'We have confirmed that this account has used hack(s) and is banned.' : 'There is currently not enough evidence to prove that this account is using hacks.'
+      const timelineInfo = TIMELINE_MAP[periodCode] || {
+        timeline: isBanned ? 'Permanent Ban' : 'Clean Account',
+        ban_period: isBanned ? 'Permanent' : null
       };
 
       return {
         is_banned: isBanned,
-        ban_status: isBanned ? 'BANNED' : 'Clean account',
-        ban_period: isBanned ? periodInfo.period : null,
+        ban_status: isBanned ? 'PERMANENTLY BANNED' : 'Clean account',
+        ban_period: isBanned ? 'Permanent' : null,
+        banned_timeline: isBanned ? timelineInfo.timeline : 'Not Banned',
         period_code: periodCode,
-        period_desc: isBanned ? periodInfo.desc : 'Clean',
-        message: isBanned ? periodInfo.message : 'There is currently not enough evidence to prove that this account is using hacks.'
+        message: isBanned 
+          ? 'We have confirmed that this account has used hack(s) and has been banned permanently.' 
+          : 'There is currently not enough evidence to prove that this account is using hacks.'
       };
     } else if (resData && resData.status === 'error') {
       return {
         is_banned: false,
         ban_status: 'ID NOT FOUND',
         ban_period: null,
+        banned_timeline: 'ID NOT FOUND',
         period_code: 0,
         message: 'No matched account found on Garena Free Fire servers.',
         error: resData.msg || 'Invalid request'
@@ -62,6 +64,7 @@ async function fetchBanStatus(uid) {
       is_banned: false,
       ban_status: 'Clean account',
       ban_period: null,
+      banned_timeline: 'Not Banned',
       period_code: 0,
       message: 'There is currently not enough evidence to prove that this account is using hacks.'
     };
@@ -70,6 +73,7 @@ async function fetchBanStatus(uid) {
       is_banned: false,
       ban_status: 'Unknown',
       ban_period: null,
+      banned_timeline: 'Unknown',
       period_code: 0,
       message: 'Network error checking Garena Anti-Hack API: ' + error.message,
       error: error.message
